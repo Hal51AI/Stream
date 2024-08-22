@@ -1,4 +1,4 @@
-# WebCaster
+# Stream
 
 A simplest but powerful demo using peerjs(for WebRTC) and threejs(for WebXR).
 
@@ -6,7 +6,7 @@ Cast your PC screen to any browser, with WebXR support!
 
 ## Online Demo
 
-GitHub Pages: https://discretetom.github.io/WebCaster
+GitHub Pages: https://hal51ai.github.io/Stream/
 
 > **Warning**: You may need to change the `Viewer Name` to some random string first to avoid conflicts.
 
