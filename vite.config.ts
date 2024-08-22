@@ -12,5 +12,5 @@ export default defineConfig({
     },
   },
   // set base path for github pages
-  base: "/WebCaster/",
+  base: "/Stream/",
 });
