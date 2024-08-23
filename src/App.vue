@@ -54,7 +54,7 @@
         Cast Screen to Viewer
       </button>
       <button @click="save" style="margin-left: 20px">
-        Save Config to URL (Will be saved above)
+        Save Config to URL
       </button>
     </div>
 
