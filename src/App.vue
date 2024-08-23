@@ -30,7 +30,7 @@
         <input type="checkbox" v-model="audio" />
       </p>
       <p>
-        View with WebXR:
+        View with WebXR (Dont use):
         <input type="checkbox" v-model="xr" :disabled="role == 'caster'" />
       </p>
       <p>
