@@ -157,6 +157,7 @@ function cast() {
 
         // Function to draw mirrored frames on the canvas
         function drawFrame() {
+          if (!context) return;
           context.clearRect(0, 0, canvas.width, canvas.height);
           context.save();
           context.scale(-1, 1); // Flip horizontally
