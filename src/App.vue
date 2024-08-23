@@ -30,7 +30,7 @@
         <input type="checkbox" v-model="audio" />
       </p>
       <p>
-        View with WebXR (Dont use):
+        View with WebXR:
         <input type="checkbox" v-model="xr" :disabled="role == 'caster'" />
       </p>
       <p>
@@ -140,15 +140,61 @@ function cast() {
     port: port.value,
     path: path.value,
   });
+
   peer.on("error", (err) => {
     console.error(err);
     errMsg.value = err.message;
   });
+
   navigator.mediaDevices
     .getDisplayMedia({ video: true, audio: audio.value })
     .then((stream) => {
-      peer.call(viewerName.value, stream);
-      casting.value++;
+      // Create a video element to play the stream
+      const videoElement = document.createElement("video");
+      videoElement.srcObject = stream;
+      videoElement.play();
+
+      // Create a canvas element to capture and mirror the video frames
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      videoElement.onloadedmetadata = () => {
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+
+        // Function to draw mirrored frames on the canvas
+        function drawFrame() {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.save();
+          context.scale(-1, 1); // Flip horizontally
+          context.drawImage(
+            videoElement,
+            -canvas.width, // Offset by the canvas width to flip
+            0,
+            canvas.width,
+            canvas.height
+          );
+          context.restore();
+          requestAnimationFrame(drawFrame);
+        }
+
+        drawFrame();
+
+        // Get the stream from the canvas
+        const mirroredStream = canvas.captureStream();
+        const combinedStream = new MediaStream([
+          ...mirroredStream.getVideoTracks(),
+          ...stream.getAudioTracks(), // If audio is enabled, include audio tracks
+        ]);
+
+        // Call the viewer with the mirrored stream
+        peer.call(viewerName.value, combinedStream);
+        casting.value++;
+      };
+    })
+    .catch((err) => {
+      console.error("Error accessing display media:", err);
+      errMsg.value = err.message;
     });
 }
 
