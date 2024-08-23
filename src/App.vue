@@ -8,7 +8,7 @@
         <input v-model="viewerName" />
         <span
           style="font-weight: bold; color: red"
-          v-if="viewerName == 'viewer'"
+          v-if="viewerName === 'viewer'"
         >
           &lt;= Use a random name to avoid conflicts.
         </span>
@@ -31,14 +31,14 @@
       </p>
       <p>
         View with WebXR:
-        <input type="checkbox" v-model="xr" :disabled="role == 'caster'" />
+        <input type="checkbox" v-model="xr" :disabled="role === 'caster'" />
       </p>
       <p>
         Show Grid in WebXR:
         <input
           type="checkbox"
           v-model="grid"
-          :disabled="!xr || role == 'caster'"
+          :disabled="!xr || role === 'caster'"
         />
       </p>
       <p>
@@ -46,7 +46,7 @@
         <input
           type="checkbox"
           v-model="axis"
-          :disabled="!xr || role == 'caster'"
+          :disabled="!xr || role === 'caster'"
         />
       </p>
       <button @click="register">Register as Viewer</button>
@@ -54,13 +54,13 @@
         Cast Screen to Viewer
       </button>
       <button @click="save" style="margin-left: 20px">
-        Save Config to URL
+        Save Config to URL (Saved Above)
       </button>
     </div>
 
-    <div v-show="role == 'viewer'">
-      <div ref="videos" v-show="xr === false">
-        <!-- place holder video -->
+    <div v-show="role === 'viewer'">
+      <div ref="videos" v-show="!xr">
+        <!-- Placeholder video for empty streams -->
         <video
           v-if="streams.length === 0"
           style="width: 100%; height: 100%; object-fit: fill"
@@ -84,6 +84,7 @@ import { Peer } from "peerjs";
 import { onMounted, ref } from "vue";
 import { initScene, addVideo } from "./xr";
 
+// Reactive variables to manage the app state
 const viewerName = ref("viewer");
 const host = ref("0.peerjs.com");
 const port = ref(443);
@@ -99,6 +100,7 @@ const videos = ref<HTMLDivElement>();
 const errMsg = ref("");
 const casting = ref(0);
 
+// Function to register as a viewer
 function register() {
   role.value = "viewer";
 
@@ -109,6 +111,7 @@ function register() {
     port: port.value,
     path: path.value,
   });
+
   peer.on("call", (call) => {
     call.answer();
     call.on("stream", (stream) => {
@@ -126,12 +129,14 @@ function register() {
       if (xr.value) addVideo(video);
     });
   });
+
   peer.on("error", (err) => {
-    console.error(err);
+    console.error("Peer error:", err);
     errMsg.value = err.message;
   });
 }
 
+// Function to start casting the screen
 function cast() {
   role.value = "caster";
 
@@ -140,19 +145,25 @@ function cast() {
     port: port.value,
     path: path.value,
   });
+
   peer.on("error", (err) => {
-    console.error(err);
+    console.error("Peer error:", err);
     errMsg.value = err.message;
   });
+
   navigator.mediaDevices
     .getDisplayMedia({ video: true, audio: audio.value })
     .then((stream) => {
       peer.call(viewerName.value, stream);
       casting.value++;
+    })
+    .catch((err) => {
+      console.error("DisplayMedia error:", err);
+      errMsg.value = err.message;
     });
 }
 
-
+// Function to save the current configuration to the URL
 function save() {
   const params = new URLSearchParams();
   params.set("viewer-name", viewerName.value);
@@ -166,8 +177,8 @@ function save() {
   window.location.search = params.toString();
 }
 
+// Function to parse URL parameters and set state accordingly
 onMounted(() => {
-  // parse url params
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has("viewer-name")) {
     viewerName.value = urlParams.get("viewer-name")!;
@@ -185,23 +196,21 @@ onMounted(() => {
     audio.value = urlParams.get("audio") === "true";
   }
   if (urlParams.has("xr")) {
-    xr.value = urlParams.get("xr") == "true";
+    xr.value = urlParams.get("xr") === "true";
   }
   if (urlParams.has("grid")) {
-    grid.value = urlParams.get("grid") == "true";
+    grid.value = urlParams.get("grid") === "true";
   }
   if (urlParams.has("axis")) {
-    axis.value = urlParams.get("axis") == "true";
+    axis.value = urlParams.get("axis") === "true";
   }
   if (urlParams.has("role")) {
-    const s = urlParams.get("role");
-    if (s == "viewer") {
+    const roleParam = urlParams.get("role");
+    if (roleParam === "viewer") {
       register();
-    } else if (s == "caster") {
+    } else if (roleParam === "caster") {
       cast();
     }
   }
 });
-
 </script>
-
