@@ -73,11 +73,11 @@
   </main>
 </template>
 
-<!-- <style scoped>
+<style scoped>
 .mirrored {
   transform: scaleX(-1);
 }
-</style> -->
+</style>
 
 <script setup lang="ts">
 import { Peer } from "peerjs";
@@ -120,7 +120,7 @@ function register() {
       video.style.width = "100%";
       video.style.height = "100%";
       video.style.objectFit = "fill";
-      //video.classList.add("mirrored");
+      video.classList.add("mirrored");
       videos.value!.appendChild(video);
 
       if (xr.value) addVideo(video);
