@@ -6,7 +6,7 @@ Cast your PC screen to any browser, with WebXR support!
 
 ## Online Demo
 
-GitHub Pages: https://hal51ai.github.io/Stream/
+[https://hal51ai.github.io/Stream/](https://stream.hal51.ai/)
 
 > **Warning**: You may need to change the `Viewer Name` to some random string first to avoid conflicts.
 
